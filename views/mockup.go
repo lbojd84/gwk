@@ -45,7 +45,7 @@ func MockUp(ui UIMap) Viewer {
 		v.SetTop(intval)
 	}
 
-	v.SetAttrs(ui)
+	v.SetUIMap(ui)
 
 	// if view has specified attrs.
 	v.MockUp(ui)

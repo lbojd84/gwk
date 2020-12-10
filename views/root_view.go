@@ -28,7 +28,6 @@ func (r *RootView) AddChild(child Viewer) {
 	log.Printf("RootView.AddChild %v + %v", r.ID(), child.ID())
 	r.children = append(r.children, child)
 	child.SetParent(r)
-	child.SetNeedsUpdate(true)
 }
 
 func (r *RootView) SetHostWindow(h *HostWindow) {
@@ -68,10 +67,7 @@ func DispatchDraw(v Viewer, canvas *vango.Canvas, dirty_rect image.Rectangle) {
 		return
 	}
 
-	if v.NeedsUpdate() {
-		v.SetNeedsUpdate(false)
-		v.OnDraw(v.Canvas())
-	}
+	v.OnDraw(v.Canvas())
 
 	src_rect = src_rect.Sub(view_rect.Min)
 	if v.Canvas().Opaque() {
@@ -96,11 +92,8 @@ func (r *RootView) DispatchDraw(dirty_rect image.Rectangle) {
 }
 
 func DispatchLayout(v Viewer) {
-	// log.Printf("DispatchLayout(%v)", v.ID())
-	log.Printf("%v %v", v.ID(), v.Bounds())
 	if v.Layouter() != nil {
 		v.Layouter().Layout(v)
-		v.SetNeedsUpdate(true)
 	}
 
 	for _, child := range v.Children() {
@@ -109,7 +102,6 @@ func DispatchLayout(v Viewer) {
 }
 
 func (r *RootView) DispatchLayout() {
-	// log.Printf("RootView.DispatchLayout()")
 	new_rect := r.Bounds()
 
 	if r.Children() == nil {
@@ -147,11 +139,11 @@ func (r *RootView) DispatchMouseMove(pt image.Point) {
 		old_handler := r.mouse_move_handler
 		r.mouse_move_handler = v
 		if old_handler != nil {
-			old_handler.OnMouseOut()
+			old_handler.OnMouseLeave()
 		}
 
 		if r.mouse_move_handler != nil {
-			r.mouse_move_handler.OnMouseIn()
+			r.mouse_move_handler.OnMouseEnter()
 		}
 	}
 

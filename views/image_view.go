@@ -38,12 +38,11 @@ func (v *ImageView) Layout(parent Viewer) {
 
 }
 
-func (v *ImageView) OnMouseIn() {
+func (v *ImageView) OnMouseEnter() {
 	v.clr.R = uint8(rand.Intn(255) + 1)
 	v.clr.G = uint8(rand.Intn(255) + 1)
 	v.clr.B = uint8(rand.Intn(255) + 1)
 	v.clr.A = uint8(rand.Intn(255) + 1)
-	v.UpdateView()
 }
 
 func (v *ImageView) OnDraw(canvas *vango.Canvas) {

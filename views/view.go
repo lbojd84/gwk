@@ -1,15 +1,15 @@
 package views
 
 import (
-	"gwk/vango"
-	"image"
+	. "gwk/vango"
+	. "image"
 	"log"
 )
 
 type View struct {
 	id string
 
-	canvas *vango.Canvas
+	canvas *Canvas
 
 	x, y int // Relative to Parent.
 	w, h int
@@ -17,10 +17,8 @@ type View struct {
 	children []Viewer
 	parent   Viewer
 
-	attrs    UIMap
+	uimap    UIMap
 	layouter Layouter
-
-	needs_update bool
 }
 
 func NewView() *View {
@@ -39,7 +37,6 @@ func (v *View) SetID(id string) {
 func (v *View) AddChild(child Viewer) {
 	v.children = append(v.children, child)
 	child.SetParent(v)
-	child.SetNeedsUpdate(true)
 }
 
 func (v *View) Children() []Viewer {
@@ -54,27 +51,27 @@ func (v *View) SetParent(parent Viewer) {
 	v.parent = parent
 }
 
-func (v *View) Canvas() *vango.Canvas {
+func (v *View) Canvas() *Canvas {
 	if v.canvas == nil {
-		v.canvas = vango.NewCanvas(v.W(), v.H())
+		v.canvas = NewCanvas(v.W(), v.H())
 	}
 
 	canvas_bounds := v.canvas.Bounds()
 
 	if canvas_bounds.Dx() < v.W() || canvas_bounds.Dy() < v.H() {
-		v.canvas = vango.NewCanvas(v.W(), v.H())
+		v.canvas = NewCanvas(v.W(), v.H())
 	} else {
-		return v.canvas.SubCanvas(image.Rect(0, 0, v.W(), v.H()))
+		return v.canvas.SubCanvas(Rect(0, 0, v.W(), v.H()))
 	}
 
 	return v.canvas
 }
 
-func (v *View) SetCanvas(canvas *vango.Canvas) {
+func (v *View) SetCanvas(canvas *Canvas) {
 	v.canvas = canvas
 }
 
-func (v *View) ToAbsPt(pt image.Point) image.Point {
+func (v *View) ToAbsPt(pt Point) Point {
 	if v.Parent() == nil {
 		return pt
 	}
@@ -83,57 +80,46 @@ func (v *View) ToAbsPt(pt image.Point) image.Point {
 	return v.Parent().ToAbsPt(pt)
 }
 
-func (v *View) ToAbsRect(rc image.Rectangle) image.Rectangle {
-	if v.Parent() == nil {
-		return rc
-	}
-	rc.Min.X = rc.Min.X + v.X()
-	rc.Min.Y = rc.Min.Y + v.Y()
-	rc.Max.X = rc.Max.X + v.X()
-	rc.Max.Y = rc.Max.Y + v.Y()
-	return v.Parent().ToAbsRect(rc)
-}
-
-func (v *View) ToDevicePt(pt image.Point) image.Point {
-	pt = pt.Add(image.Pt(v.X(), v.Y()))
+func (v *View) ToDevicePt(pt Point) Point {
+	pt = pt.Add(Pt(v.X(), v.Y()))
 	return v.Parent().ToDevicePt(pt)
 }
 
-func (v *View) ToDeviceRect(r image.Rectangle) image.Rectangle {
-	r = r.Add(image.Pt(v.X(), v.Y()))
-	return v.Parent().ToDeviceRect(r)
+func (v *View) ToAbsRect(rect Rectangle) Rectangle {
+	if v.Parent() == nil {
+		return rect
+	}
+	rect.Min.X = rect.Min.X + v.X()
+	rect.Min.Y = rect.Min.Y + v.Y()
+	rect.Max.X = rect.Max.X + v.X()
+	rect.Max.Y = rect.Max.Y + v.Y()
+	return v.Parent().ToAbsRect(rect)
 }
 
-func update_rect(v Viewer, rect image.Rectangle) {
+func (v *View) ToDeviceRect(rect Rectangle) Rectangle {
+	rect = rect.Add(Pt(v.X(), v.Y()))
+	return v.Parent().ToDeviceRect(rect)
+}
+
+func update_rect(v Viewer, rect Rectangle) {
 	if v.Parent() == nil {
-		v.UpdateRect(rect)
+		v.ScheduleDrawRect(rect)
 		return
 	}
-
-	rect = rect.Add(image.Pt(v.X(), v.Y()))
+	rect = rect.Add(Pt(v.X(), v.Y()))
 	update_rect(v.Parent(), rect)
 }
 
-func (v *View) UpdateView() {
-	v.SetNeedsUpdate(true)
+func (v *View) ScheduleDraw() {
 	if v.Parent() != nil {
 		update_rect(v.Parent(), v.Bounds())
 	}
 }
 
-func (v *View) UpdateRect(rect image.Rectangle) {
-	v.SetNeedsUpdate(true)
+func (v *View) ScheduleDrawRect(rect Rectangle) {
 	if v.Parent() != nil {
 		update_rect(v.Parent(), rect)
 	}
-}
-
-func (v *View) NeedsUpdate() bool {
-	return v.needs_update
-}
-
-func (v *View) SetNeedsUpdate(needs_update bool) {
-	v.needs_update = needs_update
 }
 
 func (v *View) X() int {
@@ -193,11 +179,11 @@ func (v *View) SetTop(top int) {
 	v.y = top
 }
 
-func (v *View) Bounds() image.Rectangle {
-	return image.Rect(v.x, v.y, v.x+v.w, v.y+v.h)
+func (v *View) Bounds() Rectangle {
+	return Rect(v.x, v.y, v.x+v.w, v.y+v.h)
 }
 
-func (v *View) SetBounds(bounds image.Rectangle) {
+func (v *View) SetBounds(bounds Rectangle) {
 	v.x, v.y = bounds.Min.X, bounds.Min.Y
 	v.w, v.h = bounds.Dx(), bounds.Dy()
 }
@@ -210,24 +196,24 @@ func (v *View) SetLayouter(layouter Layouter) {
 	v.layouter = layouter
 }
 
-func (v *View) OnDraw(canvas *vango.Canvas) {
+func (v *View) OnDraw(canvas *Canvas) {
 	log.Printf("View.OnDraw()")
 }
 
-func (v *View) OnMouseIn() {
-	log.Printf("View.OnMouseIn()")
+func (v *View) OnMouseEnter() {
+	log.Printf("View.OnMouseEnter()")
 }
 
-func (v *View) OnMouseOut() {
-	log.Printf("View.OnMouseOut()")
+func (v *View) OnMouseLeave() {
+	log.Printf("View.OnMouseLeave()")
 }
 
-func (v *View) SetAttrs(attrs UIMap) {
-	v.attrs = attrs
+func (v *View) SetUIMap(ui UIMap) {
+	v.uimap = ui
 }
 
-func (v *View) Attrs() UIMap {
-	return v.attrs
+func (v *View) UIMap() UIMap {
+	return v.uimap
 }
 
 func (v *View) MockUp(ui UIMap) {

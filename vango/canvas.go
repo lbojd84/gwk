@@ -119,8 +119,6 @@ func (dst *Canvas) DrawCanvas(x int, y int, src *Canvas, srcRc *image.Rectangle)
 		var tmpRc = src.Bounds()
 		srcRc = &tmpRc
 	}
-	log.Printf("dstRc srcRc %v %v", dst.Bounds(), srcRc)
-	log.Printf("src_rc %v src_bds %v dst_bds %v", srcRc, src.Bounds(), dst.Bounds())
 
 	var srcX, srcY = srcRc.Min.X, srcRc.Min.Y
 	var dstX, dstY = x, y

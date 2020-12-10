@@ -5,8 +5,8 @@
 package views
 
 import (
-	"gwk/vango"
-	"image"
+	. "gwk/vango"
+	. "image"
 )
 
 type Viewer interface {
@@ -19,23 +19,21 @@ type Viewer interface {
 	Parent() Viewer
 	SetParent(parent Viewer)
 
-	Canvas() *vango.Canvas
-	SetCanvas(canvas *vango.Canvas)
+	Canvas() *Canvas
+	SetCanvas(canvas *Canvas)
 
-	ToAbsPt(pt image.Point) image.Point
-	ToAbsRect(rc image.Rectangle) image.Rectangle
-	ToDevicePt(pt image.Point) image.Point
-	ToDeviceRect(rc image.Rectangle) image.Rectangle
+	ToAbsPt(pt Point) Point
+	ToDevicePt(pt Point) Point
+	ToAbsRect(rc Rectangle) Rectangle
+	ToDeviceRect(rc Rectangle) Rectangle
 
-	OnDraw(canvas *vango.Canvas)
+	OnDraw(canvas *Canvas)
 
-	OnMouseIn()
-	OnMouseOut()
+	OnMouseEnter()
+	OnMouseLeave()
 
-	UpdateView()
-	UpdateRect(dirty image.Rectangle)
-	NeedsUpdate() bool
-	SetNeedsUpdate(needs_update bool)
+	ScheduleDraw()
+	ScheduleDrawRect(dirty Rectangle)
 
 	X() int
 	Y() int
@@ -53,11 +51,11 @@ type Viewer interface {
 	SetWidth(width int)
 	SetHeight(height int)
 
-	Bounds() image.Rectangle
-	SetBounds(bounds image.Rectangle)
+	Bounds() Rectangle
+	SetBounds(bounds Rectangle)
 
-	Attrs() UIMap
-	SetAttrs(attrs UIMap)
+	UIMap() UIMap
+	SetUIMap(attrs UIMap)
 	MockUp(ui UIMap)
 
 	Layouter() Layouter

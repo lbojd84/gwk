@@ -5,8 +5,8 @@
 package views
 
 import (
-	"gwk/vango"
-	"image"
+	. "gwk/vango"
+	. "image"
 	"log"
 )
 
@@ -17,7 +17,7 @@ type RootView struct {
 	mouse_move_handler Viewer
 }
 
-func NewRootView(bounds image.Rectangle) *RootView {
+func NewRootView(bounds Rectangle) *RootView {
 	var v = new(RootView)
 	v.SetID("cn.ustc.edu/gwk/root_view")
 	v.SetBounds(bounds)
@@ -37,20 +37,20 @@ func (r *RootView) SetHostWindow(h *HostWindow) {
 	}
 }
 
-func (r *RootView) ToAbsPt(pt image.Point) image.Point {
+func (r *RootView) ToAbsPoint(pt Point) Point {
 	return pt
 }
 
-func (r *RootView) ToAbsRect(rc image.Rectangle) image.Rectangle {
+func (r *RootView) ToAbsRect(rc Rectangle) Rectangle {
 	return rc
 }
 
-func (r *RootView) ToDevicePt(pt image.Point) image.Point {
+func (r *RootView) ToDevicePoint(pt Point) Point {
 	log.Printf("NOTIMPLEMENT")
 	return pt
 }
 
-func (r *RootView) ToDeviceRect(rc image.Rectangle) image.Rectangle {
+func (r *RootView) ToDeviceRect(rc Rectangle) Rectangle {
 	log.Printf("NOTIMPLEMENT")
 	return rc
 }
@@ -59,36 +59,66 @@ func (r *RootView) HostWindow() *HostWindow {
 	return r.host_window
 }
 
-func DispatchDraw(v Viewer, canvas *vango.Canvas, dirty_rect image.Rectangle) {
-	view_rect := v.Bounds()
-	src_rect := view_rect.Intersect(dirty_rect)
-
-	if src_rect.Empty() {
-		return
+func (r *RootView) Canvas() *Canvas {
+	if r.canvas == nil {
+		r.canvas = NewCanvas(r.W(), r.H())
 	}
-
-	v.OnDraw(v.Canvas())
-
-	src_rect = src_rect.Sub(view_rect.Min)
-	if v.Canvas().Opaque() {
-		canvas.AlphaBlendCanvas(v.X(), v.Y(), v.Canvas(), &src_rect)
+	canvas_bounds := r.canvas.Bounds()
+	if canvas_bounds.Dx() < r.W() || canvas_bounds.Dy() < r.H() {
+		r.canvas = NewCanvas(r.W(), r.H())
 	} else {
-		canvas.DrawCanvas(v.X(), v.Y(), v.Canvas(), &src_rect)
+		return r.canvas.SubCanvas(Rect(0, 0, r.W(), r.H()))
 	}
-
-	sub_canvas := canvas.SubCanvas(v.Bounds())
-	for _, child := range v.Children() {
-		child_rect := src_rect.Intersect(child.Bounds())
-		if !child_rect.Empty() {
-			DispatchDraw(child, sub_canvas, child_rect)
-		}
-	}
+	return r.canvas
 }
 
-func (r *RootView) DispatchDraw(dirty_rect image.Rectangle) {
-	if r.Children() != nil && len(r.Children()) >= 1 {
-		DispatchDraw(r.Children()[0], r.Canvas(), dirty_rect)
+func (r *RootView) DispatchDraw(dirty_rect Rectangle) {
+	children := r.Children()
+	if children != nil && len(children) < 1 {
+		return
 	}
+	var dispatch_draw func(event *DrawEvent)
+	dispatch_draw = func(event *DrawEvent) {
+		dirty_rect := event.DirtyRect.Intersect(event.Owner.Bounds())
+		if dirty_rect.Empty() {
+			return
+		}
+
+		view := event.Owner
+		if view == nil {
+			return
+		}
+
+		view.OnDraw(event)
+
+		view_canvas := event.Canvas
+		for _, child := range view.Children() {
+			// Caculate the child dirty rectangle.
+			child_dirty_rect := dirty_rect.Intersect(child.Bounds())
+			if child_dirty_rect.Empty() {
+				continue
+			}
+			child_dirty_rect = child_dirty_rect.Sub(child_dirty_rect.Min)
+			// Clip the canvas to child bounds.
+			child_canvas := view_canvas.SubCanvas(child.Bounds())
+			// Make a new draw event.
+			child_draw_event := &DrawEvent{
+				Owner:     child,
+				DirtyRect: child_dirty_rect,
+				Canvas:    child_canvas,
+			}
+			// Dispatch draw.
+			dispatch_draw(child_draw_event)
+		}
+	}
+
+	// RootView only have one child. That's the MainFrame.
+	event := &DrawEvent{
+		Owner:     children[0],
+		DirtyRect: dirty_rect,
+		Canvas:    r.Canvas(),
+	}
+	dispatch_draw(event)
 }
 
 func DispatchLayout(v Viewer) {
@@ -114,7 +144,7 @@ func (r *RootView) DispatchLayout() {
 	r.DispatchDraw(r.Bounds())
 }
 
-func get_event_handler_for_point(v Viewer, pt image.Point) Viewer {
+func get_event_handler_for_point(v Viewer, pt Point) Viewer {
 	pt.X, pt.Y = pt.X-v.X(), pt.Y-v.Y()
 
 	for _, child := range v.Children() {
@@ -128,22 +158,24 @@ func get_event_handler_for_point(v Viewer, pt image.Point) Viewer {
 	return v
 }
 
-func (r *RootView) DispatchMouseMove(pt image.Point) {
+func (r *RootView) DispatchMouseMove(pt Point) {
 	v := get_event_handler_for_point(r, pt)
 
 	// for v != r.mouse_move_handler {
 	// 	v = v.Parent()
 	// }
 
+	mouse_event := NewMouseEvent(pt)
+
 	if v != nil && v != r && v != r.mouse_move_handler {
 		old_handler := r.mouse_move_handler
 		r.mouse_move_handler = v
 		if old_handler != nil {
-			old_handler.OnMouseLeave()
+			old_handler.OnMouseLeave(mouse_event)
 		}
 
 		if r.mouse_move_handler != nil {
-			r.mouse_move_handler.OnMouseEnter()
+			r.mouse_move_handler.OnMouseEnter(mouse_event)
 		}
 	}
 
@@ -152,7 +184,7 @@ func (r *RootView) DispatchMouseMove(pt image.Point) {
 	}
 }
 
-func (r *RootView) UpdateRect(rect image.Rectangle) {
+func (r *RootView) UpdateRect(rect Rectangle) {
 	rect = rect.Intersect(r.Bounds())
 	r.DispatchDraw(rect)
 	r.host_window.InvalidateRect(rect)

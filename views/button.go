@@ -5,13 +5,13 @@
 package views
 
 import (
-	"gwk/vango"
+	. "gwk/vango"
 	"gwk/views/R"
 )
 
 type Button struct {
 	View
-	canvas_enable *vango.Canvas
+	canvas_enable *Canvas
 }
 
 func NewButton() *Button {
@@ -20,6 +20,5 @@ func NewButton() *Button {
 	b.canvas_enable = R.LoadCanvas("data/button.png")
 	b.SetBounds(b.canvas_enable.Bounds())
 	b.Canvas().DrawCanvas(0, 0, b.canvas_enable, nil)
-
 	return b
 }

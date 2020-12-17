@@ -55,15 +55,12 @@ func (v *View) Canvas() *Canvas {
 	if v.canvas == nil {
 		v.canvas = NewCanvas(v.W(), v.H())
 	}
-
 	canvas_bounds := v.canvas.Bounds()
-
 	if canvas_bounds.Dx() < v.W() || canvas_bounds.Dy() < v.H() {
 		v.canvas = NewCanvas(v.W(), v.H())
 	} else {
 		return v.canvas.SubCanvas(Rect(0, 0, v.W(), v.H()))
 	}
-
 	return v.canvas
 }
 
@@ -71,18 +68,18 @@ func (v *View) SetCanvas(canvas *Canvas) {
 	v.canvas = canvas
 }
 
-func (v *View) ToAbsPt(pt Point) Point {
+func (v *View) ToAbsPoint(pt Point) Point {
 	if v.Parent() == nil {
 		return pt
 	}
 	pt.X = pt.X + v.X()
 	pt.Y = pt.Y + v.Y()
-	return v.Parent().ToAbsPt(pt)
+	return v.Parent().ToAbsPoint(pt)
 }
 
-func (v *View) ToDevicePt(pt Point) Point {
+func (v *View) ToDevicePoint(pt Point) Point {
 	pt = pt.Add(Pt(v.X(), v.Y()))
-	return v.Parent().ToDevicePt(pt)
+	return v.Parent().ToDevicePoint(pt)
 }
 
 func (v *View) ToAbsRect(rect Rectangle) Rectangle {
@@ -196,15 +193,15 @@ func (v *View) SetLayouter(layouter Layouter) {
 	v.layouter = layouter
 }
 
-func (v *View) OnDraw(canvas *Canvas) {
+func (v *View) OnDraw(event *DrawEvent) {
 	log.Printf("View.OnDraw()")
 }
 
-func (v *View) OnMouseEnter() {
+func (v *View) OnMouseEnter(event *MouseEvent) {
 	log.Printf("View.OnMouseEnter()")
 }
 
-func (v *View) OnMouseLeave() {
+func (v *View) OnMouseLeave(event *MouseEvent) {
 	log.Printf("View.OnMouseLeave()")
 }
 

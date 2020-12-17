@@ -5,11 +5,22 @@
 package views
 
 import (
-	"gwk/vango"
-	"image"
+	. "gwk/vango"
+	. "image"
 )
 
-type PaintEvent struct {
-	Canvas    *vango.Canvas
-	DirtyRect image.Rectangle
+type DrawEvent struct {
+	Owner     Viewer
+	Canvas    *Canvas
+	DirtyRect Rectangle
+}
+
+type MouseEvent struct {
+	Location Point
+}
+
+func NewMouseEvent(pt Point) *MouseEvent {
+	mouse_event := new(MouseEvent)
+	mouse_event.Location = pt
+	return mouse_event
 }

@@ -22,15 +22,15 @@ type Viewer interface {
 	Canvas() *Canvas
 	SetCanvas(canvas *Canvas)
 
-	ToAbsPt(pt Point) Point
-	ToDevicePt(pt Point) Point
+	ToAbsPoint(pt Point) Point
+	ToDevicePoint(pt Point) Point
 	ToAbsRect(rc Rectangle) Rectangle
 	ToDeviceRect(rc Rectangle) Rectangle
 
-	OnDraw(canvas *Canvas)
+	OnDraw(event *DrawEvent)
 
-	OnMouseEnter()
-	OnMouseLeave()
+	OnMouseEnter(event *MouseEvent)
+	OnMouseLeave(event *MouseEvent)
 
 	ScheduleDraw()
 	ScheduleDrawRect(dirty Rectangle)

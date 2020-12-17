@@ -74,6 +74,10 @@ func (c *Canvas) SetOpaque(opaque bool) {
 }
 
 func (c *Canvas) SubCanvas(r image.Rectangle) *Canvas {
+	// The SubImage in the image pkg is need the r based on the absolute
+	// coordinate. We need r based on the relative coordinate. So covnert
+	// r to the parent's coordinate first.
+	r = r.Add(c.Bounds().Min)
 	r = r.Intersect(c.Bounds())
 	if r.Empty() {
 		return &Canvas{}
@@ -87,7 +91,7 @@ func (c *Canvas) SubCanvas(r image.Rectangle) *Canvas {
 }
 
 func (c *Canvas) PixOffset(x int, y int) int {
-	return x*4 + y*c.Stride()
+	return (x-c.bounds.Min.X)*4 + (y-c.bounds.Min.Y)*c.stride
 }
 
 func (dst *Canvas) DrawColor(r, g, b byte) {

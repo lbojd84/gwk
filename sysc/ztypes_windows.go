@@ -401,6 +401,14 @@ const (
 	IDI_ASTERISK    = 32516
 	IDI_WINLOGO     = 32517
 )
+
+// PeekMessage wRemoveMsg value
+const (
+	PM_NOREMOVE = 0x000
+	PM_REMOVE   = 0x001
+	PM_NOYIELD  = 0x002
+)
+
 const (
 	IDC_ARROW       = 32512
 	IDC_IBEAM       = 32513

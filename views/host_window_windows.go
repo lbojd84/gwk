@@ -5,6 +5,7 @@
 package views
 
 import (
+	"fmt"
 	. "gwk/sysc"
 	. "gwk/vango"
 	"image"
@@ -12,8 +13,6 @@ import (
 	"syscall"
 	"unsafe"
 )
-
-const kHostWindowClassName = "EDU.USTC.CN/GWK"
 
 type HostWindow struct {
 	root_view *RootView
@@ -29,11 +28,13 @@ func NewHostWindow(bounds image.Rectangle) *HostWindow {
 }
 
 func (hw *HostWindow) Init(bounds image.Rectangle) {
+	host_window_class := fmt.Sprintf("www.ustc.edu.cn/gwk/host_window/%p", hw)
+
 	var wc WNDCLASSEX
 
 	wc.Size = uint32(unsafe.Sizeof(wc))
 	wc.Style = CS_HREDRAW | CS_VREDRAW
-	wc.FnWndProc = syscall.NewCallback(innerWndProc)
+	wc.FnWndProc = syscall.NewCallback(host_window_wnd_proc)
 	wc.ClassExtra = 0
 	wc.WindowExtra = 0
 	wc.HInstance = NULL
@@ -41,7 +42,7 @@ func (hw *HostWindow) Init(bounds image.Rectangle) {
 	wc.HCursor, _ = LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW))
 	wc.HbrBackground = COLOR_WINDOWFRAME
 	wc.MenuName = nil
-	wc.ClassName = syscall.StringToUTF16Ptr(kHostWindowClassName)
+	wc.ClassName = syscall.StringToUTF16Ptr(host_window_class)
 
 	if _, err := RegisterClassEx(&wc); err != nil {
 		log.Panicf("RegisterClassEx Failed %v", err)
@@ -58,7 +59,7 @@ func (hw *HostWindow) Init(bounds image.Rectangle) {
 	}
 
 	hwnd, err := CreateWindowEx(WS_OVERLAPPED,
-		syscall.StringToUTF16Ptr(kHostWindowClassName),
+		syscall.StringToUTF16Ptr(host_window_class),
 		nil,
 		WS_OVERLAPPEDWINDOW,
 		x, y, width, height,
@@ -159,7 +160,7 @@ func (h *HostWindow) on_wnd_proc(msg uint32, warg uintptr, larg uintptr) uintptr
 	return DefWindowProc(h.hwnd, msg, warg, larg)
 }
 
-func innerWndProc(hwnd Handle, msg uint32, warg uintptr, larg uintptr) uintptr {
+func host_window_wnd_proc(hwnd Handle, msg uint32, warg uintptr, larg uintptr) uintptr {
 	if msg == WM_NCCREATE {
 		var cs = (*CREATESTRUCT)(unsafe.Pointer(larg))
 		var w = (*HostWindow)(unsafe.Pointer(cs.CreateParams))

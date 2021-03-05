@@ -5,6 +5,7 @@
 package main
 
 import (
+	"gwk"
 	. "gwk/views"
 	"image"
 	"math/rand"
@@ -14,22 +15,51 @@ import (
 func makeMainUIMap() UIMap {
 	var main_uimap = UIMap{
 		"type": "main_frame",
+		"toolbar": UIMap{
+			"type":   "toolbar",
+			"width":  "fill_parent",
+			"height": "20",
+		},
 		"left_panel": UIMap{
-			"type":   "image_view",
-			"color":  0xe6e6e6,
-			"width":  100,
+			"type":   "view",
+			"id":     "left_panels_container",
+			"width":  "fill_parent",
 			"height": "fill_parent",
+			"layout": "vertical",
+			"children": []UIMap{
+				{
+					"type": "panel",
+				},
+				{
+					"type": "panel",
+				},
+			},
 		},
 		"main_panel": UIMap{
 			"type":  "image_view",
-			"color": 0x272822,
+			"color": 0x606060,
+			// "children": []UIMap{
+			// 	{
+			// 		"type":   "image_view",
+			// 		"left":   50,
+			// 		"top":    120,
+			// 		"width":  570,
+			// 		"height": 300,
+			// 	},
+			// },
+		},
+		"right_panel": UIMap{
+			"type":   "view",
+			"id":     "left_panels_container",
+			"width":  "fill_parent",
+			"height": "fill_parent",
+			"layout": "vertical",
 			"children": []UIMap{
 				{
-					"type":   "image_view",
-					"left":   50,
-					"top":    120,
-					"width":  570,
-					"height": 300,
+					"type": "panel",
+				},
+				{
+					"type": "panel",
 				},
 			},
 		},
@@ -41,11 +71,13 @@ func makeMainUIMap() UIMap {
 func main() {
 	rand.Seed(time.Now().Unix())
 
-	var hv = NewHostView(image.Rect(0, 0, 840, 610))
+	gwk.Init()
 
-	v := MockUp(makeMainUIMap())
-	hv.RootView.AddChild(v)
+	var host_view = NewHostView(image.Rect(0, 0, 1159, 687))
 
-	hv.Show()
-	hv.Run()
+	host_view.RootView.AddChild(MockUp(makeMainUIMap()))
+
+	host_view.Show()
+
+	CurrentUIEventLoop().Run()
 }

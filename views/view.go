@@ -180,6 +180,10 @@ func (v *View) Bounds() Rectangle {
 	return Rect(v.x, v.y, v.x+v.w, v.y+v.h)
 }
 
+func (v *View) LocalBounds() Rectangle {
+	return Rect(0, 0, v.w, v.h)
+}
+
 func (v *View) SetBounds(bounds Rectangle) {
 	v.x, v.y = bounds.Min.X, bounds.Min.Y
 	v.w, v.h = bounds.Dx(), bounds.Dy()

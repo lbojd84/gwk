@@ -79,12 +79,13 @@ func (r *RootView) DispatchDraw(dirty_rect Rectangle) {
 	}
 	var dispatch_draw func(event *DrawEvent)
 	dispatch_draw = func(event *DrawEvent) {
-		dirty_rect := event.DirtyRect.Intersect(event.Owner.Bounds())
+		view := event.Owner
+		bounds := view.Bounds()
+		dirty_rect := event.DirtyRect.Intersect(bounds.Sub(bounds.Min))
 		if dirty_rect.Empty() {
 			return
 		}
 
-		view := event.Owner
 		if view == nil {
 			return
 		}
@@ -99,14 +100,17 @@ func (r *RootView) DispatchDraw(dirty_rect Rectangle) {
 				continue
 			}
 			child_dirty_rect = child_dirty_rect.Sub(child_dirty_rect.Min)
+
 			// Clip the canvas to child bounds.
 			child_canvas := view_canvas.SubCanvas(child.Bounds())
+
 			// Make a new draw event.
 			child_draw_event := &DrawEvent{
 				Owner:     child,
 				DirtyRect: child_dirty_rect,
 				Canvas:    child_canvas,
 			}
+
 			// Dispatch draw.
 			dispatch_draw(child_draw_event)
 		}

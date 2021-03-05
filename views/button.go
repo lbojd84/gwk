@@ -6,7 +6,7 @@ package views
 
 import (
 	. "gwk/vango"
-	"gwk/views/R"
+	"gwk/views/resc"
 )
 
 type Button struct {
@@ -17,7 +17,7 @@ type Button struct {
 func NewButton() *Button {
 	var b = new(Button)
 	b.SetID("button")
-	b.canvas_enable = R.LoadCanvas("data/button.png")
+	b.canvas_enable = resc.LoadCanvas("data/button.png")
 	b.SetBounds(b.canvas_enable.Bounds())
 	b.Canvas().DrawCanvas(0, 0, b.canvas_enable, nil)
 	return b

@@ -5,18 +5,18 @@
 package views
 
 import (
-	"gwk/vango"
-	"gwk/views/R"
+	. "image"
+	// . "gwk/vango"
+	// . "gwk/views/resc"
 )
 
 type MainFrame struct {
 	View
-	canvas_bkg *vango.Canvas
 
-	left_panel Viewer
-	main_panel Viewer
-
-	left_pos int
+	left_panel  Viewer
+	right_panel Viewer
+	main_panel  Viewer
+	toolbar     Viewer
 }
 
 func NewMainFrame() *MainFrame {
@@ -24,9 +24,8 @@ func NewMainFrame() *MainFrame {
 	v.SetID("main_frame")
 	v.SetLayouter(v)
 	v.SetXYWH(0, 0, 50, 50)
-	v.canvas_bkg = R.LoadCanvas("data/texture.png")
-	v.Canvas().DrawTexture(v.Canvas().Bounds(), v.canvas_bkg, v.canvas_bkg.Bounds())
-	v.left_pos = 150
+	// v.canvas_bkg = resc.LoadCanvas("data/texture.png")
+	// v.Canvas().DrawTexture(v.Canvas().Bounds(), v.canvas_bkg, v.canvas_bkg.Bounds())
 	return v
 }
 
@@ -36,19 +35,87 @@ func (v *MainFrame) MockUp(ui UIMap) {
 		v.AddChild(v.left_panel)
 	}
 
+	if right_panel, ok := ui.UIMap("right_panel"); ok {
+		v.right_panel = MockUp(right_panel)
+		v.AddChild(v.right_panel)
+	}
+
 	if main_panel, ok := ui.UIMap("main_panel"); ok {
 		v.main_panel = MockUp(main_panel)
 		v.AddChild(v.main_panel)
 	}
+
+	if toolbar, ok := ui.UIMap("toolbar"); ok {
+		v.toolbar = MockUp(toolbar)
+		v.AddChild(v.toolbar)
+	}
 }
 
-func (v *MainFrame) Layout(parent Viewer) {
-	v.Canvas().DrawTexture(v.Canvas().Bounds(), v.canvas_bkg, v.canvas_bkg.Bounds())
-	x, y, w, h := v.X(), v.Y(), v.W(), v.H()
-	if v.left_panel != nil {
-		v.left_panel.SetXYWH(x+5, y+5, v.left_pos-10, h-10)
+func (m *MainFrame) Layout(parent Viewer) {
+	// m.Canvas().DrawTexture(m.Canvas().Bounds(), m.canvas_bkg, m.canvas_bkg.Bounds())
+	var r Rectangle
+
+	if m.left_panel != nil {
+		r = m.get_left_panel_bounds()
+		m.left_panel.SetBounds(r)
 	}
-	if v.main_panel != nil {
-		v.main_panel.SetXYWH(v.left_pos, y+5, w-v.left_pos-5, h-10)
+
+	if m.right_panel != nil {
+		r = m.get_right_panel_bounds()
+		m.right_panel.SetBounds(r)
 	}
+
+	if m.main_panel != nil {
+		r = m.get_main_panel_bounds()
+		m.main_panel.SetBounds(r)
+	}
+
+	if m.toolbar != nil {
+		r = m.get_toolbar_bounds()
+		m.toolbar.SetBounds(r)
+	}
+}
+
+// ============================================================================
+
+func (m *MainFrame) get_left_panel_bounds() Rectangle {
+	bounds := m.LocalBounds()
+	const panel_width = 200
+
+	y := m.get_toolbar_height()
+	w := panel_width
+	h := bounds.Dy()
+
+	return Rect(0, y, w, h)
+}
+
+func (m *MainFrame) get_toolbar_height() int {
+	return 30
+}
+
+func (m *MainFrame) get_toolbar_bounds() Rectangle {
+	bounds := m.LocalBounds()
+	return Rect(0, 0, bounds.Dx(), 30)
+}
+
+func (m *MainFrame) get_right_panel_bounds() Rectangle {
+	bounds := m.LocalBounds()
+	const panel_width = 200
+
+	x := bounds.Dx() - panel_width
+	y := m.get_toolbar_height()
+
+	return Rect(x, y, bounds.Dx(), bounds.Dy())
+}
+
+func (m *MainFrame) get_main_panel_bounds() Rectangle {
+	bounds := m.LocalBounds()
+	const panel_width = 200
+
+	x := panel_width
+	y := m.get_toolbar_height()
+	w := bounds.Dx() - panel_width
+	h := bounds.Dy()
+
+	return Rect(x, y, w, h)
 }

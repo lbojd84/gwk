@@ -52,6 +52,7 @@ type Viewer interface {
 	SetHeight(height int)
 
 	Bounds() Rectangle
+	LocalBounds() Rectangle
 	SetBounds(bounds Rectangle)
 
 	UIMap() UIMap

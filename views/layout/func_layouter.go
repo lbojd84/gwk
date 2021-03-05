@@ -5,18 +5,18 @@
 package layout
 
 import (
-	"gwk"
-	"image"
+	. "gwk/views"
+	. "image"
 )
 
-type LayoutFunc func(image.Rectangle, []gwk.Viewer)
+type LayoutFunc func(Rectangle, []Viewer)
 
 type FuncLayouter struct {
 	layout_func LayoutFunc
 }
 
-func (f *FuncLayouter) Layout(bds image.Rectangle, views []gwk.Viewer) {
-	f.layout_func(bds, views)
+func (f *FuncLayouter) Layout(bounds Rectangle, views []Viewer) {
+	f.layout_func(bounds, views)
 }
 
 func NewFuncLayouter(layout_func LayoutFunc) *FuncLayouter {

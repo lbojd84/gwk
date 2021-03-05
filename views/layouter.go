@@ -4,6 +4,66 @@
 
 package views
 
+import (
+	"log"
+)
+
+// ============================================================================
+
 type Layouter interface {
 	Layout(view Viewer)
+}
+
+// ============================================================================
+
+var (
+	g_vertical_layouter   Layouter
+	g_horizontal_layouter Layouter
+)
+
+func init_layout() {
+	g_vertical_layouter = NewFuncLayouter(VerticalLayoutFunc)
+}
+
+// ============================================================================
+
+type LayoutFunc func(view Viewer)
+
+type FuncLayouter struct {
+	layout_func LayoutFunc
+}
+
+func NewFuncLayouter(layout_func LayoutFunc) *FuncLayouter {
+	layouter := new(FuncLayouter)
+	layouter.layout_func = layout_func
+	return layouter
+}
+
+func (f *FuncLayouter) Layout(view Viewer) {
+	f.layout_func(view)
+}
+
+// ============================================================================
+
+func VerticalLayoutFunc(view Viewer) {
+	bounds := view.Bounds()
+	children := view.Children()
+
+	if children == nil {
+		return
+	}
+
+	log.Printf("vertical %v", bounds)
+
+	height := bounds.Dy() / len(children)
+	margin_top := 0
+	for _, child := range children {
+		w := bounds.Dx()
+		h := height
+		x := 0
+		y := margin_top
+		child.SetXYWH(x, y, w, h)
+		log.Printf("x y w h %v %v %v %v", x, y, w, h)
+		margin_top = margin_top + height
+	}
 }

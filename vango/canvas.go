@@ -10,10 +10,10 @@ import (
 )
 
 type Canvas struct {
-	pix    []byte
-	bounds Rectangle
-	stride int
-	opaque bool
+	pix    []byte    // Pixels in RGBA order.
+	bounds Rectangle // Bounds is the sub rectangle of the pixels's bounds.
+	stride int       // The number of pixels in one line.
+	opaque bool      // Does the canvas opaque.
 }
 
 func NewCanvas(width int, height int) *Canvas {
@@ -163,8 +163,6 @@ func (dst *Canvas) DrawCanvas(x int, y int, src *Canvas, srcRc *Rectangle) {
 
 	var srcStride = src.Stride() * 4
 	var dstStride = dst.Stride() * 4
-
-	log.Printf("src_rect %v dst_rect %v", srcRc, dst.Bounds())
 
 	var i, j = 0, 0
 	for j < bltH {

@@ -140,6 +140,7 @@ type EventLoop struct {
 	should_quit        bool
 	pending_task_queue *task_queue_t
 	delayed_task_queue *priority_task_queue_t
+	// pending_task_queue_lock sync.Lock
 }
 
 func (e *EventLoop) init() {
@@ -148,6 +149,21 @@ func (e *EventLoop) init() {
 }
 
 func (e *EventLoop) Run() {
+	for {
+		if e.should_quit {
+			break
+		}
+
+		e.do_work()
+		if e.should_quit {
+			break
+		}
+
+		e.do_delayed_work()
+		if e.should_quit {
+			break
+		}
+	}
 }
 
 func (e *EventLoop) PostTask(closure Closure) {
@@ -161,7 +177,9 @@ func (e *EventLoop) PostDelayedTask(closure Closure, delay_misc int64) {
 func (e *EventLoop) add_to_pending_task_queue(closure Closure, delay_misc int64) {
 	time := time.Now().Add(time.Duration(delay_misc * 1000))
 	task := NewTask(closure, time)
+	// Lock pending task queue.
 	e.pending_task_queue.Push(task)
+	// Unlock pending task queue.
 }
 
 func (e *EventLoop) ShouldQuit() {
@@ -172,8 +190,10 @@ func (e *EventLoop) do_work() {
 	now := time.Now()
 
 	for !e.pending_task_queue.Empty() {
+		// Lock pending task queue.
 		task := e.pending_task_queue.Front()
 		e.pending_task_queue.Pop()
+		// Unlock pending task queue.
 		if !task.time.After(now) {
 			task.closure()
 		} else {

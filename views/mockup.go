@@ -6,15 +6,19 @@ import (
 
 type NewViewFunc func() Viewer
 
-var g_mockup_map map[string]NewViewFunc = make(map[string]NewViewFunc)
+var g_mock_up_map map[string]NewViewFunc = make(map[string]NewViewFunc)
+
+func RegisterNewFuncToMockUp(typ string, new_func func() Viewer) {
+	g_mock_up_map[typ] = new_func
+}
 
 func init_mockup() {
-	g_mockup_map["view"] = func() Viewer { return NewView() }
-	g_mockup_map["image_view"] = func() Viewer { return NewImageView() }
-	g_mockup_map["button"] = func() Viewer { return NewButton() }
-	g_mockup_map["panel"] = func() Viewer { return NewPanel() }
-	g_mockup_map["main_frame"] = func() Viewer { return NewMainFrame() }
-	g_mockup_map["toolbar"] = func() Viewer { return NewToolbar() }
+	g_mock_up_map["view"] = func() Viewer { return NewView() }
+	g_mock_up_map["image_view"] = func() Viewer { return NewImageView() }
+	g_mock_up_map["button"] = func() Viewer { return NewButton() }
+	g_mock_up_map["panel"] = func() Viewer { return NewPanel() }
+	g_mock_up_map["main_frame"] = func() Viewer { return NewMainFrame() }
+	g_mock_up_map["toolbar"] = func() Viewer { return NewToolbar() }
 }
 
 func MockUp(ui UIMap) Viewer {
@@ -25,7 +29,7 @@ func MockUp(ui UIMap) Viewer {
 
 	var v Viewer
 
-	new_view_func := g_mockup_map[typ]
+	new_view_func := g_mock_up_map[typ]
 	if new_view_func != nil {
 		v = new_view_func()
 	} else {
@@ -97,4 +101,8 @@ func MockUp(ui UIMap) Viewer {
 	}
 
 	return v
+}
+
+func hierarchy_mockup() {
+
 }

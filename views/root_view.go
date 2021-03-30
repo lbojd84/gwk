@@ -63,22 +63,26 @@ func (r *RootView) Canvas() *Canvas {
 	if r.canvas == nil {
 		r.canvas = NewCanvas(r.W(), r.H())
 	}
+
 	canvas_bounds := r.canvas.Bounds()
 	if canvas_bounds.Dx() < r.W() || canvas_bounds.Dy() < r.H() {
 		r.canvas = NewCanvas(r.W(), r.H())
 	} else {
 		return r.canvas.SubCanvas(Rect(0, 0, r.W(), r.H()))
 	}
+
 	return r.canvas
 }
 
 func (r *RootView) DispatchDraw(dirty_rect Rectangle) {
 	children := r.Children()
-	if children != nil && len(children) < 1 {
+	if r.children_count() == 0 {
 		return
 	}
-	var dispatch_draw func(event *DrawEvent)
-	dispatch_draw = func(event *DrawEvent) {
+
+	// The inner function for dispatch draw.
+	var dispatch_draw_event func(event *DrawEvent)
+	dispatch_draw_event = func(event *DrawEvent) {
 		view := event.Owner
 		bounds := view.Bounds()
 		dirty_rect := event.DirtyRect.Intersect(bounds.Sub(bounds.Min))
@@ -112,7 +116,7 @@ func (r *RootView) DispatchDraw(dirty_rect Rectangle) {
 			}
 
 			// Dispatch draw.
-			dispatch_draw(child_draw_event)
+			dispatch_draw_event(child_draw_event)
 		}
 	}
 
@@ -122,7 +126,7 @@ func (r *RootView) DispatchDraw(dirty_rect Rectangle) {
 		DirtyRect: dirty_rect,
 		Canvas:    r.Canvas(),
 	}
-	dispatch_draw(event)
+	dispatch_draw_event(event)
 }
 
 func DispatchLayout(v Viewer) {
@@ -138,7 +142,7 @@ func DispatchLayout(v Viewer) {
 func (r *RootView) DispatchLayout() {
 	new_rect := r.Bounds()
 
-	if r.Children() == nil {
+	if r.children_count() == 0 {
 		return
 	}
 
@@ -192,4 +196,12 @@ func (r *RootView) UpdateRect(rect Rectangle) {
 	rect = rect.Intersect(r.Bounds())
 	r.DispatchDraw(rect)
 	r.host_window.InvalidateRect(rect)
+}
+
+func (r *RootView) children_count() int {
+	if r.children == nil {
+		return 0
+	}
+
+	return len(r.children)
 }

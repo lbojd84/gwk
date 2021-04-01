@@ -183,6 +183,7 @@ func (r *RootView) DispatchMouseMove(pt Point) {
 		}
 
 		if r.mouse_move_handler != nil {
+			mouse_event.Owner = r.mouse_move_handler
 			r.mouse_move_handler.OnMouseEnter(mouse_event)
 		}
 	}
@@ -190,6 +191,10 @@ func (r *RootView) DispatchMouseMove(pt Point) {
 	if r.mouse_move_handler != nil {
 		// r.mouse_move_handler.OnMouseMove()
 	}
+}
+
+func (r *RootView) ScheduleDrawRect(dirty_rect Rectangle) {
+	r.UpdateRect(dirty_rect)
 }
 
 func (r *RootView) UpdateRect(rect Rectangle) {

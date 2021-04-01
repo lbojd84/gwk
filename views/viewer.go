@@ -61,4 +61,7 @@ type Viewer interface {
 
 	Layouter() Layouter
 	SetLayouter(l Layouter)
+
+	SetDelegate(delegate UIMap)
+	Delegate() UIMap
 }

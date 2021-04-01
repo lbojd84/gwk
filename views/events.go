@@ -16,6 +16,7 @@ type DrawEvent struct {
 }
 
 type MouseEvent struct {
+	Owner    Viewer
 	Location Point
 }
 

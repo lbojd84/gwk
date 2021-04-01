@@ -224,7 +224,7 @@ func (e *EventLoop) do_delayed_work() {
 
 var g_current_ui_event_loop *UIEventLoop
 
-func CurrentUIEventLoop() *UIEventLoop {
+func MainUIEventLoop() *UIEventLoop {
 	if g_current_ui_event_loop == nil {
 		g_current_ui_event_loop = NewUIEventLoop()
 	}

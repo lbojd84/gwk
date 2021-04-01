@@ -61,7 +61,7 @@ func MockUp(ui UIMap) Viewer {
 		v.SetTop(intval)
 	}
 
-	// Process the layout attribute.
+	// process the layout attribute.
 	if val, ok := ui["layout"]; ok {
 		if str_val, ok := val.(string); ok {
 			if str_val == "vertical" {
@@ -77,6 +77,10 @@ func MockUp(ui UIMap) Viewer {
 	}
 
 	v.SetUIMap(ui)
+
+	if delegate, ok := ui.UIMap("delegate"); ok {
+		v.SetDelegate(delegate)
+	}
 
 	// If the view has some view specifc attributes.
 	v.MockUp(ui)

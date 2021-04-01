@@ -19,6 +19,8 @@ type View struct {
 
 	uimap    UIMap
 	layouter Layouter
+
+	delegate UIMap
 }
 
 func NewView() *View {
@@ -203,6 +205,23 @@ func (v *View) OnDraw(event *DrawEvent) {
 
 func (v *View) OnMouseEnter(event *MouseEvent) {
 	log.Printf("View.OnMouseEnter()")
+	delegate := v.Delegate()
+	if delegate == nil {
+		return
+	}
+
+	expect_on_mouse_enter := delegate["on_mouse_enter"]
+	if expect_on_mouse_enter == nil {
+		return
+	}
+
+	var on_mouse_enter func(*MouseEvent)
+	var ok bool
+	if on_mouse_enter, ok = expect_on_mouse_enter.(func(*MouseEvent)); !ok {
+		return
+	}
+
+	on_mouse_enter(event)
 }
 
 func (v *View) OnMouseLeave(event *MouseEvent) {
@@ -219,4 +238,12 @@ func (v *View) UIMap() UIMap {
 
 func (v *View) MockUp(ui UIMap) {
 	return
+}
+
+func (v *View) SetDelegate(delegate UIMap) {
+	v.delegate = delegate
+}
+
+func (v *View) Delegate() UIMap {
+	return v.delegate
 }

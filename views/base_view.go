@@ -20,7 +20,7 @@ type BaseView struct {
 	uimap    UIMap
 	layouter Layouter
 
-	delegate UIMap
+	delegate ViewDelegate
 }
 
 func NewBaseView() *BaseView {
@@ -204,24 +204,10 @@ func (v *BaseView) OnDraw(event *DrawEvent) {
 }
 
 func (v *BaseView) OnMouseEnter(event *MouseEvent) {
-	log.Printf("BaseView.OnMouseEnter()")
-	delegate := v.Delegate()
-	if delegate == nil {
+	if v.delegate == nil {
 		return
 	}
-
-	expect_on_mouse_enter := delegate["on_mouse_enter"]
-	if expect_on_mouse_enter == nil {
-		return
-	}
-
-	var on_mouse_enter func(*MouseEvent)
-	var ok bool
-	if on_mouse_enter, ok = expect_on_mouse_enter.(func(*MouseEvent)); !ok {
-		return
-	}
-
-	on_mouse_enter(event)
+	v.delegate.OnMouseEnter(event)
 }
 
 func (v *BaseView) OnMouseLeave(event *MouseEvent) {
@@ -240,10 +226,10 @@ func (v *BaseView) MockUp(ui UIMap) {
 	return
 }
 
-func (v *BaseView) SetDelegate(delegate UIMap) {
+func (v *BaseView) SetDelegate(delegate ViewDelegate) {
 	v.delegate = delegate
 }
 
-func (v *BaseView) Delegate() UIMap {
+func (v *BaseView) Delegate() ViewDelegate {
 	return v.delegate
 }

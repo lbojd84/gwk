@@ -77,11 +77,9 @@ func MockUp(ui UIMap) View {
 		}
 	}
 
-	v.SetUIMap(ui)
+	process_view_delegate(v, ui)
 
-	if delegate, ok := ui.UIMap("delegate"); ok {
-		v.SetDelegate(delegate)
-	}
+	v.SetUIMap(ui)
 
 	// If the view has some view specifc attributes.
 	v.MockUp(ui)
@@ -110,4 +108,13 @@ func MockUp(ui UIMap) View {
 
 func hierarchy_mockup() {
 
+}
+
+func process_view_delegate(v View, ui UIMap) {
+	delegate_ui_map, ok := ui.UIMap("delegate")
+	if !ok {
+		return
+	}
+	delegate := NewBaseViewDelegate().InitWithUIMap(delegate_ui_map)
+	v.SetDelegate(delegate)
 }

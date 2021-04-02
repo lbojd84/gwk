@@ -56,12 +56,12 @@ type View interface {
 	SetBounds(bounds Rectangle)
 
 	UIMap() UIMap
-	SetUIMap(attrs UIMap)
+	SetUIMap(ui_map UIMap)
 	MockUp(ui UIMap)
 
 	Layouter() Layouter
 	SetLayouter(l Layouter)
 
-	SetDelegate(delegate UIMap)
-	Delegate() UIMap
+	SetDelegate(delegate ViewDelegate)
+	Delegate() ViewDelegate
 }

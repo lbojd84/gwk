@@ -10,7 +10,7 @@ import (
 )
 
 type Button struct {
-	View
+	BaseView
 	canvas_enable *Canvas
 }
 

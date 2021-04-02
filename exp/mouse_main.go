@@ -14,7 +14,7 @@ import (
 
 func make_main_ui_map() views.UIMap {
 	var main_ui_map = views.UIMap{
-		"type": "view",
+		"type": "base_view",
 		"children": []views.UIMap{
 			views.UIMap{
 				"type":   "image_view",

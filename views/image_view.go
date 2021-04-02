@@ -9,7 +9,7 @@ import (
 )
 
 type ImageView struct {
-	View
+	BaseView
 	clr color.RGBA
 }
 
@@ -31,7 +31,7 @@ func (v *ImageView) MockUp(ui UIMap) {
 	}
 }
 
-func (v *ImageView) Layout(parent Viewer) {
+func (v *ImageView) Layout(parent View) {
 
 }
 

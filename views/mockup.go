@@ -4,30 +4,31 @@ import (
 	"log"
 )
 
-type NewViewFunc func() Viewer
+type NewViewFunc func() View
 
 var g_mock_up_map map[string]NewViewFunc = make(map[string]NewViewFunc)
 
-func RegisterNewFuncToMockUp(typ string, new_func func() Viewer) {
+func RegisterNewFuncToMockUp(typ string, new_func func() View) {
 	g_mock_up_map[typ] = new_func
 }
 
 func init_mockup() {
-	g_mock_up_map["view"] = func() Viewer { return NewView() }
-	g_mock_up_map["image_view"] = func() Viewer { return NewImageView() }
-	g_mock_up_map["button"] = func() Viewer { return NewButton() }
-	g_mock_up_map["panel"] = func() Viewer { return NewPanel() }
-	g_mock_up_map["main_frame"] = func() Viewer { return NewMainFrame() }
-	g_mock_up_map["toolbar"] = func() Viewer { return NewToolbar() }
+	// Init the gobal mockup mapping.
+	g_mock_up_map["base_view"] = func() View { return NewBaseView() }
+	g_mock_up_map["image_view"] = func() View { return NewImageView() }
+	g_mock_up_map["button"] = func() View { return NewButton() }
+	g_mock_up_map["panel"] = func() View { return NewPanel() }
+	g_mock_up_map["main_frame"] = func() View { return NewMainFrame() }
+	g_mock_up_map["toolbar"] = func() View { return NewToolbar() }
 }
 
-func MockUp(ui UIMap) Viewer {
+func MockUp(ui UIMap) View {
 	typ, ok := ui.String("type")
 	if !ok {
 		return nil
 	}
 
-	var v Viewer
+	var v View
 
 	new_view_func := g_mock_up_map[typ]
 	if new_view_func != nil {
@@ -92,7 +93,7 @@ func MockUp(ui UIMap) Viewer {
 			continue
 		}
 		if typ == "custom_view" {
-			child_view, ok := child.Viewer("custom_view")
+			child_view, ok := child.View("custom_view")
 			if ok {
 				v.AddChild(child_view)
 			}

@@ -11,10 +11,10 @@ import (
 )
 
 type RootView struct {
-	View
+	BaseView
 	host_window *HostWindow
 
-	mouse_move_handler Viewer
+	mouse_move_handler View
 }
 
 func NewRootView(bounds Rectangle) *RootView {
@@ -24,7 +24,7 @@ func NewRootView(bounds Rectangle) *RootView {
 	return v
 }
 
-func (r *RootView) AddChild(child Viewer) {
+func (r *RootView) AddChild(child View) {
 	log.Printf("RootView.AddChild %v + %v", r.ID(), child.ID())
 	r.children = append(r.children, child)
 	child.SetParent(r)
@@ -129,7 +129,7 @@ func (r *RootView) DispatchDraw(dirty_rect Rectangle) {
 	dispatch_draw_event(event)
 }
 
-func DispatchLayout(v Viewer) {
+func DispatchLayout(v View) {
 	if v.Layouter() != nil {
 		v.Layouter().Layout(v)
 	}
@@ -152,7 +152,7 @@ func (r *RootView) DispatchLayout() {
 	r.DispatchDraw(r.Bounds())
 }
 
-func get_event_handler_for_point(v Viewer, pt Point) Viewer {
+func get_event_handler_for_point(v View, pt Point) View {
 	pt.X, pt.Y = pt.X-v.X(), pt.Y-v.Y()
 
 	for _, child := range v.Children() {

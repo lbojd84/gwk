@@ -76,10 +76,14 @@ func (u *UIEventLoop) Run() {
 			break
 		}
 	}
+
+	// message_pump_win.cc 268
+	// u.WaitForMoreWork()
 }
 
 func (u *UIEventLoop) process_next_ui_event() {
 	var msg sysc.MSG
+	// for sysc.GetMessage(&msg, sysc.NULL, 0, 0) != 0 {
 	for sysc.PeekMessage(&msg, sysc.NULL, 0, 0, sysc.PM_REMOVE) {
 		sysc.TranslateMessage(&msg)
 		sysc.DispatchMessage(&msg)

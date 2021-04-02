@@ -10,13 +10,13 @@ import (
 )
 
 type DrawEvent struct {
-	Owner     Viewer
+	Owner     View
 	Canvas    *Canvas
 	DirtyRect Rectangle
 }
 
 type MouseEvent struct {
-	Owner    Viewer
+	Owner    View
 	Location Point
 }
 

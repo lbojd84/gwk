@@ -108,16 +108,19 @@ func LoadCanvasFile(fd *os.File) *Canvas {
 	if err != nil {
 		return nil
 	}
+
 	if nrgba, ok := png.(*image.NRGBA); ok {
 		var canvas = NewCanvas(nrgba.Rect.Dx(), nrgba.Rect.Dy())
 		canvas.DrawImageNRGBA(0, 0, nrgba, nil)
-		canvas.SetOpaque(true)
+		canvas.SetOpaque(false)
 		return canvas
 	}
+
 	if rgba, ok := png.(*image.RGBA); ok {
 		var canvas = NewCanvas(rgba.Rect.Dx(), rgba.Rect.Dy())
 		canvas.DrawImageRGBA(0, 0, rgba, nil)
 		return canvas
 	}
+
 	return nil
 }
